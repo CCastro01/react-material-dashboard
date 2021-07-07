@@ -1,92 +1,142 @@
 import React from 'react';
-import { Switch, Redirect } from 'react-router-dom';
-
+import {Switch, Redirect } from 'react-router-dom';  ///////////////////////////////////
 import { RouteWithLayout } from './components';
-import { Main as MainLayout, Minimal as MinimalLayout } from './layouts';
 
+
+import { PrivateRoute } from './components';
+import {isAuthenticated} from "../src/services/auth"
+
+
+import { Main as MainLayout, Minimal as MinimalLayout } from './layouts';
 import {
   Dashboard as DashboardView,
-  ProductList as ProductListView,
-  UserList as UserListView,
-  Typography as TypographyView,
-  Icons as IconsView,
-  Account as AccountView,
-  Settings as SettingsView,
-  SignUp as SignUpView,
   SignIn as SignInView,
-  NotFound as NotFoundView
+  TarefaList as TarefaListView,
+  Clientes as ClientesView,
+  ProdutoList as ProdutoListView,
+  FornecedorList as FornecedorListView,
+  // Typography as TypographyView,
+  // Icons as IconsView,
+  AddFornecedores as AddFornecedoresView,
+  // Settings as SettingsView,
+  SignUp as SignUpView,
+  // NotFound as NotFoundView
 } from './views';
+
+
+
+
+
+
+
+////// A ROTA PRIVADA NÃO FUNCIONA QUANDO É COLOCADO O <Layout>
+
+// const PrivateRoute = props => {
+//   const { layout: Layout, component: Component, ...rest } = props;
+
+//   return (
+//   <Route
+  
+//     {...rest}
+//     render={ matchProps =>
+//       isAuthenticated() ? (
+//         <Layout>          
+//           <Component {...matchProps} />
+//         </Layout>
+          
+//         ) : (
+//         <Redirect to={{ path: "/", state: { from: props.location } }} />
+        
+//       )}
+    
+//   />
+//   );
+// };
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
 
 const Routes = () => {
   return (
+  // <BrowserRouter>
     <Switch>
       <Redirect
         exact
         from="/"
-        to="/dashboard"
+        to="/login"
       />
-      <RouteWithLayout
+
+      {/* <RouteWithLayout
         component={DashboardView}
         exact
         layout={MainLayout}
         path="/dashboard"
-      />
-      <RouteWithLayout
-        component={UserListView}
+      /> */}
+
+      <PrivateRoute
+        component={DashboardView}
         exact
         layout={MainLayout}
-        path="/users"
+        path="/dashboard"
+        
       />
-      <RouteWithLayout
-        component={ProductListView}
+
+      <PrivateRoute
+        component={TarefaListView}
         exact
         layout={MainLayout}
-        path="/products"
+        path="/tarefas"
       />
-      <RouteWithLayout
-        component={TypographyView}
+
+      <PrivateRoute
+        component={ClientesView}
         exact
         layout={MainLayout}
-        path="/typography"
+        path="/clientes"
       />
-      <RouteWithLayout
-        component={IconsView}
+
+      <PrivateRoute
+        component={ProdutoListView}
         exact
         layout={MainLayout}
-        path="/icons"
+        path="/produtos"
       />
-      <RouteWithLayout
-        component={AccountView}
+
+      <PrivateRoute
+        component={FornecedorListView}
         exact
         layout={MainLayout}
-        path="/account"
+        path="/fornecedores"
       />
-      <RouteWithLayout
-        component={SettingsView}
-        exact
-        layout={MainLayout}
-        path="/settings"
-      />
-      <RouteWithLayout
+
+      <RouteWithLayout   // rota que não precisa passa por autenticação para ser acessada
         component={SignUpView}
         exact
         layout={MinimalLayout}
         path="/sign-up"
       />
-      <RouteWithLayout
+      <RouteWithLayout    // rota que não precisa passa por autenticação para ser acessada
         component={SignInView}
         exact
         layout={MinimalLayout}
-        path="/sign-in"
+        path="/login"
       />
-      <RouteWithLayout
-        component={NotFoundView}
+
+      <PrivateRoute
+        component={AddFornecedoresView}
         exact
-        layout={MinimalLayout}
-        path="/not-found"
+        layout={MainLayout}
+        path="/AddFornecedor"
       />
+
+
+
       <Redirect to="/not-found" />
-    </Switch>
+     </Switch>
+  // </BrowserRouter>
   );
 };
 

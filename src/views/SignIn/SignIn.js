@@ -1,7 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect} from 'react';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
+import {useHistory} from 'react-router-dom'
+// import useHistory from "react-router-dom"
 import PropTypes from 'prop-types';
-import validate from 'validate.js';
+
+// import validate from 'validate.js';
+import api from '../../services/api'
+import {login} from '../../services/auth'
 import { makeStyles } from '@material-ui/styles';
 import {
   Grid,
@@ -13,9 +18,15 @@ import {
 } from '@material-ui/core';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
-import { Facebook as FacebookIcon, Google as GoogleIcon } from 'icons';
+// import { Facebook as FacebookIcon, Google as GoogleIcon } from 'icons';
 
 const schema = {
+  username: {
+    presence: { allowEmpty: false, message: 'is required' },
+    length: {
+      maximum: 64
+    }
+  },
   email: {
     presence: { allowEmpty: false, message: 'is required' },
     email: true,
@@ -125,61 +136,101 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const SignIn = props => {
-  const { history } = props;
 
-  const classes = useStyles();
 
-  const [formState, setFormState] = useState({
-    isValid: false,
-    values: {},
-    touched: {},
-    errors: {}
-  });
 
-  useEffect(() => {
-    const errors = validate(formState.values, schema);
+// class SignIn extends Component {
+//   state = {
+//     email: "",
+//     username:"",
+//     password: "",
+//     error: ""
+//   };
 
-    setFormState(formState => ({
-      ...formState,
-      isValid: errors ? false : true,
-      errors: errors || {}
-    }));
-  }, [formState.values]);
+  const SignIn = props => {
 
-  const handleBack = () => {
-    history.goBack();
-  };
+    const [username, setUsername] = useState('');
+    // const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+
+  
+  // style = (useStyles) =>{
+  //   const classes = useStyles();
+  // }
+
+
+  // const [formState, setFormState] = useState({
+  //   isValid: false,
+  //   values: {},
+  //   touched: {},
+  //   errors: {}
+  // });
+
+  // useEffect(() => {
+  //   const errors = validate(formState.values, schema);
+
+  //   setFormState(formState => ({
+  //     ...formState,
+  //     isValid: errors ? false : true,
+  //     errors: errors || {}
+  //   }));
+  // }, [formState.values]);
+
+  // handleBack = () => {
+  //   history.goBack();
+  // };
 
   const handleChange = event => {
     event.persist();
 
-    setFormState(formState => ({
-      ...formState,
-      values: {
-        ...formState.values,
-        [event.target.name]:
-          event.target.type === 'checkbox'
-            ? event.target.checked
-            : event.target.value
-      },
-      touched: {
-        ...formState.touched,
-        [event.target.name]: true
+    // setFormState(formState => ({
+    //   ...formState,
+    //   values: {
+    //     ...formState.values,
+    //     [event.target.name]:
+    //       event.target.type === 'checkbox'
+    //         ? event.target.checked
+    //         : event.target.value
+    //   },
+    //   touched: {
+    //     ...formState.touched,
+    //     [event.target.name]: true
+    //   }
+    // }));
+  };
+  const history = useHistory();
+
+  const handleSignIn = async e => {
+    e.preventDefault();
+
+
+      try {
+        const response = await api.post("/wp-json/jwt-auth/v1/token", { username, password });
+        login(response.data.token);
+        
+        // localStorage.setItem('username', response.data.username)
+        // localStorage.setItem('password', response.data.password)
+
+        alert("Aeee deu bom")
+        history.push("/dashboard");
+      } catch (err) {
+       
+        alert(err + " : Deu ruim meu fi")
+        
       }
-    }));
+    // }
   };
 
-  const handleSignIn = event => {
-    event.preventDefault();
-    history.push('/');
-  };
+  
 
-  const hasError = field =>
-    formState.touched[field] && formState.errors[field] ? true : false;
+  // render(){
+    
+    const classes = useStyles();
 
   return (
-    <div className={classes.root}>
+    <div className={classes.root} >
+      
       <Grid
         className={classes.grid}
         container
@@ -195,26 +246,27 @@ const SignIn = props => {
                 className={classes.quoteText}
                 variant="h1"
               >
-                Hella narwhal Cosby sweater McSweeney's, salvia kitsch before
-                they sold out High Life.
+                Cadastre suas tarefas no sistema e tenha melhor controle e gerenciamento delas. Basta logar com seu email e cadastrá-las na página.
               </Typography>
               <div className={classes.person}>
                 <Typography
-                  className={classes.name}
+                  className={classes.quoteText}
                   variant="body1"
                 >
-                  Takamaru Ayako
+                  Set Tarefas
                 </Typography>
                 <Typography
                   className={classes.bio}
                   variant="body2"
                 >
-                  Manager at inVision
+                  Garenciador de Tarefas Online
                 </Typography>
               </div>
             </div>
           </div>
         </Grid>
+
+        
         <Grid
           className={classes.content}
           item
@@ -223,10 +275,12 @@ const SignIn = props => {
         >
           <div className={classes.content}>
             <div className={classes.contentHeader}>
-              <IconButton onClick={handleBack}>
+              {/* <IconButton onClick={handleBack}>
                 <ArrowBackIcon />
-              </IconButton>
+              </IconButton> */}
             </div>
+
+            
             <div className={classes.contentBody}>
               <form
                 className={classes.form}
@@ -236,15 +290,19 @@ const SignIn = props => {
                   className={classes.title}
                   variant="h2"
                 >
-                  Sign in
+                  Login
                 </Typography>
-                <Typography
+
+
+                {/* <Typography
                   color="textSecondary"
                   gutterBottom
                 >
-                  Sign in with social media
-                </Typography>
-                <Grid
+                  Entre com seu endereço de email
+                </Typography> */}
+
+
+                {/* <Grid
                   className={classes.socialButtons}
                   container
                   spacing={2}
@@ -270,65 +328,92 @@ const SignIn = props => {
                       Login with Google
                     </Button>
                   </Grid>
-                </Grid>
+                </Grid> */}
+
+
+
                 <Typography
                   align="center"
                   className={classes.sugestion}
                   color="textSecondary"
                   variant="body1"
                 >
-                  or login with email address
+                  Entre com seu endereço de email
                 </Typography>
+
+                {/* {this.state.error && <p>{this.state.error}</p>} */}
+
                 <TextField
                   className={classes.textField}
-                  error={hasError('email')}
+                  // error={hasError('username')}
                   fullWidth
-                  helperText={
-                    hasError('email') ? formState.errors.email[0] : null
-                  }
-                  label="Email address"
-                  name="email"
-                  onChange={handleChange}
+                  // helperText={
+                  //   hasError('username') ? formState.errors.username[0] : null
+                  // }
+                  label="Nome de usuário"
+                  name="username"
+                  onChange={e => setUsername(e.target.value )}
                   type="text"
-                  value={formState.values.email || ''}
+                  // value={formState.values.username || ''}
                   variant="outlined"
                 />
+
+
+                {/* <TextField
+                  className={classes.textField}
+                  // error={hasError('email')}
+                  fullWidth
+                  // helperText={
+                  //   hasError('email') ? formState.errors.email[0] : null
+                  // }
+                  label="Endereço de email"
+                  name="email"
+                  onChange={e => setEmail(e.target.value )}
+                  type="email"
+                  // value={formState.values.email || ''}
+                  variant="outlined"
+                /> */}
+
+
                 <TextField
                   className={classes.textField}
-                  error={hasError('password')}
+                  // error={hasError('password')}
                   fullWidth
-                  helperText={
-                    hasError('password') ? formState.errors.password[0] : null
-                  }
-                  label="Password"
+                  // helperText={
+                  //   hasError('password') ? formState.errors.password[0] : null
+                  // }
+                  label="Senha"
                   name="password"
-                  onChange={handleChange}
+                  onChange={e => setPassword( e.target.value )}
                   type="password"
-                  value={formState.values.password || ''}
+                  // value={formState.values.password || ''}
                   variant="outlined"
                 />
+
+
+
                 <Button
                   className={classes.signInButton}
                   color="primary"
-                  disabled={!formState.isValid}
+                  // disabled={!formState.isValid}
                   fullWidth
                   size="large"
                   type="submit"
                   variant="contained"
                 >
-                  Sign in now
+                  Entrar
                 </Button>
                 <Typography
                   color="textSecondary"
                   variant="body1"
                 >
-                  Don't have an account?{' '}
+                  Não tem uma conta?{' '}
                   <Link
                     component={RouterLink}
                     to="/sign-up"
                     variant="h6"
                   >
-                    Sign up
+                    Criar conta
                   </Link>
                 </Typography>
               </form>
@@ -338,10 +423,13 @@ const SignIn = props => {
       </Grid>
     </div>
   );
-};
+}
+// };
 
 SignIn.propTypes = {
   history: PropTypes.object
 };
 
 export default withRouter(SignIn);
+
+
